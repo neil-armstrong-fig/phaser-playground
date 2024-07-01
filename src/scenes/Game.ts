@@ -9,7 +9,7 @@ export class Game extends Scene {
   msg_text: Phaser.GameObjects.Text;
   fpsText: FpsText;
   launchableObject: LaunchableObject;
-  collidableObject: CollidableObject;
+  collidableObjects: Phaser.Physics.Arcade.Group;
 
   constructor() {
     super("Game");
@@ -25,8 +25,28 @@ export class Game extends Scene {
 
     this.launchableObject = new LaunchableObject(this, this.cameras.main.width / 4, this.cameras.main.height / 2);
   
-    this.collidableObject = new CollidableObject(this, 500, 300);
-  }
+    this.collidableObjects = this.physics.add.group({
+      classType: CollidableObject,
+      runChildUpdate: true,
+    });
+
+    // Add collidable objects to the group
+    this.collidableObjects.add(new CollidableObject(this, 500, 300));
+    this.collidableObjects.add(new CollidableObject(this, 700, 400));
+    this.collidableObjects.add(new CollidableObject(this, 900, 500));
+  
+
+  this.physics.add.collider(
+    this.launchableObject,
+    this.collidableObjects,
+  );
+
+  this.physics.add.collider(
+    this.collidableObjects,
+    this.collidableObjects
+  ); // I don't know why this looks weird, but it does
+
+}
 
   update() {
     this.fpsText.update();
