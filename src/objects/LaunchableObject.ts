@@ -13,7 +13,9 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 
     this.setInteractive();
     this.setCollideWorldBounds(true);
+
     this.setBounce(0.8,0.8);
+    this.setDrag(50, 50); // Bounce is a percentage of bleed, while drag is in px/s
     scene.input.setDraggable(this);
 
     this.dragLine = scene.add.graphics();
