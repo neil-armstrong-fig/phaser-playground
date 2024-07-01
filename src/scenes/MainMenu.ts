@@ -1,4 +1,4 @@
-import {Scene, GameObjects} from "phaser";
+import {Scene, type GameObjects} from "phaser";
 
 export class MainMenu extends Scene {
   background: GameObjects.Image;

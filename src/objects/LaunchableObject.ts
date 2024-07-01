@@ -13,19 +13,20 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 
     this.setInteractive();
     this.setCollideWorldBounds(true);
+    this.setBounce(0.8,0.8);
     scene.input.setDraggable(this);
 
     this.dragLine = scene.add.graphics();
     this.dragLine.lineStyle(2, 0x00ff00, 1);
 
-    scene.input.on('dragstart', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
+    scene.input.on('dragstart', (_pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
       if (gameObject === this) {
         this.isDragging = true;
         this.dragStartPoint = new Phaser.Math.Vector2(this.x, this.y);
       }
     });
 
-    scene.input.on('drag', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
+    scene.input.on('drag', (pointer: Phaser.Input.Pointer, _gameObject: Phaser.GameObjects.GameObject) => {
       if (this.isDragging) {
         this.dragLine.clear();
         this.dragLine.lineStyle(2, 0x00ff00, 1);
@@ -36,7 +37,7 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
       }
     });
 
-    scene.input.on('dragend', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
+    scene.input.on('dragend', (pointer: Phaser.Input.Pointer, _gameObject: Phaser.GameObjects.GameObject) => {
       if (this.isDragging) {
         this.isDragging = false;
         this.dragLine.clear();
