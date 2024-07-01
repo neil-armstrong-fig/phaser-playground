@@ -1,5 +1,6 @@
 import {Scene} from "phaser";
 import FpsText from '../objects/fpsText';
+import LaunchableObject from "../objects/LaunchableObject";
 
 
 export class Game extends Scene {
@@ -7,6 +8,7 @@ export class Game extends Scene {
   background: Phaser.GameObjects.Image;
   msg_text: Phaser.GameObjects.Text;
   fpsText: FpsText;
+  launchableObject: LaunchableObject;
 
   constructor() {
     super("Game");
@@ -20,7 +22,7 @@ export class Game extends Scene {
     this.fpsText = new FpsText(this)
     this.background.setAlpha(0.5);
 
-    this.msg_text = this.add.text(512, 384, "Make something fun!\nand share it with us:\nsupport@phaser.io", {
+  /*  this.msg_text = this.add.text(512, 384, "Make something fun!\nand share it with us:\nsupport@phaser.io", {
       fontFamily: "Arial Black",
       fontSize: 38,
       color: "#ffffff",
@@ -29,12 +31,10 @@ export class Game extends Scene {
       align: "center",
     });
     this.msg_text.setOrigin(0.5);
-
-    this.input.once("pointerdown", () => {
-      this.scene.start("GameOver");
-    });
+  */
+    this.launchableObject = new LaunchableObject(this, this.cameras.main.width / 4, this.cameras.main.height / 2);
   }
-  
+
   update() {
     this.fpsText.update();
   }
