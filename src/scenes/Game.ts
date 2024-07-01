@@ -1,9 +1,12 @@
 import {Scene} from "phaser";
+import FpsText from '../objects/fpsText';
+
 
 export class Game extends Scene {
   camera: Phaser.Cameras.Scene2D.Camera;
   background: Phaser.GameObjects.Image;
   msg_text: Phaser.GameObjects.Text;
+  fpsText: FpsText;
 
   constructor() {
     super("Game");
@@ -14,6 +17,7 @@ export class Game extends Scene {
     this.camera.setBackgroundColor(0x00ff00);
 
     this.background = this.add.image(512, 384, "background");
+    this.fpsText = new FpsText(this)
     this.background.setAlpha(0.5);
 
     this.msg_text = this.add.text(512, 384, "Make something fun!\nand share it with us:\nsupport@phaser.io", {
@@ -29,5 +33,9 @@ export class Game extends Scene {
     this.input.once("pointerdown", () => {
       this.scene.start("GameOver");
     });
+  }
+  
+  update() {
+    this.fpsText.update();
   }
 }
