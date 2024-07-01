@@ -11,6 +11,7 @@ export class Game extends Scene {
   launchableObject: LaunchableObject;
   collidableObjects: Phaser.Physics.Arcade.Group;
 
+
   constructor() {
     super("Game");
   }
@@ -20,9 +21,9 @@ export class Game extends Scene {
     this.camera.setBackgroundColor(0x00ff00);
 
     this.background = this.add.image(512, 384, "background");
-    this.fpsText = new FpsText(this)
     this.background.setAlpha(0.5);
 
+    this.fpsText = new FpsText(this)
     this.launchableObject = new LaunchableObject(this, this.cameras.main.width / 4, this.cameras.main.height / 2);
   
     this.collidableObjects = this.physics.add.group({
@@ -34,7 +35,6 @@ export class Game extends Scene {
     this.collidableObjects.add(new CollidableObject(this, 500, 300));
     this.collidableObjects.add(new CollidableObject(this, 700, 400));
     this.collidableObjects.add(new CollidableObject(this, 900, 500));
-  
 
   this.physics.add.collider(
     this.launchableObject,
@@ -45,7 +45,6 @@ export class Game extends Scene {
     this.collidableObjects,
     this.collidableObjects
   ); // I don't know why this looks weird, but it does
-
 }
 
   update() {
