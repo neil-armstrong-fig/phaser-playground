@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import FpsText from "../objects/fpsText";
 import LaunchableObject from "../objects/LaunchableObject";
 import CollidableObject from "../objects/CollidableObject";
+import ScoreManager from "../objects/ScoreManager";
 
 export class Game extends Scene {
 	camera: Phaser.Cameras.Scene2D.Camera;
@@ -10,6 +11,7 @@ export class Game extends Scene {
 	launchableObject: LaunchableObject;
 	collidableObject: CollidableObject;
 	collidableObjects: Phaser.Physics.Arcade.Group;
+	scoreManager: ScoreManager;
 
 	constructor() {
 		super("Game");
@@ -23,6 +25,7 @@ export class Game extends Scene {
 
 		this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height);
 		this.fpsText = new FpsText(this);
+		this.scoreManager = new ScoreManager(this);
 
 		this.launchableObject = new LaunchableObject(
 			this,
@@ -46,8 +49,26 @@ export class Game extends Scene {
 
 		this.configureCollidableObjects();
 
-		this.physics.add.collider(this.launchableObject, this.collidableObjects);
-		this.physics.add.collider(this.collidableObjects, this.collidableObjects);
+		this.physics.add.collider(
+			this.launchableObject,
+			this.collidableObjects,
+			(launchableObject, collidableObjects) => {
+				if (launchableObject.body.touching && collidableObjects.body.touching) {
+					console.log("green on red hit!");
+					this.scoreManager.increaseScore(10);
+				}
+			},
+		);
+		this.physics.add.collider(
+			this.collidableObjects,
+			this.collidableObjects,
+			(collidableObject) => {
+				if (collidableObject.body.touching && collidableObject.body.touching) {
+					console.log("red on red hit!");
+					this.scoreManager.increaseScore(5);
+				}
+			},
+		);
 
 		// Debugging to figure out world bounds
 		this.physics.world.createDebugGraphic();
@@ -66,5 +87,6 @@ export class Game extends Scene {
 
 	update() {
 		this.fpsText.update();
+		this.scoreManager.updateScoreText();
 	}
 }
