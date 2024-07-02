@@ -2,15 +2,16 @@ import { Scene } from "phaser";
 import FpsText from "../objects/fpsText";
 import LaunchableObject from "../objects/LaunchableObject";
 import CollidableObject from "../objects/CollidableObject";
+import ScoreManager from "../objects/ScoreManager";
 
 export class Game extends Scene {
 	camera: Phaser.Cameras.Scene2D.Camera;
 	background: Phaser.GameObjects.Image;
-	msg_text: Phaser.GameObjects.Text;
 	fpsText: FpsText;
 	launchableObject: LaunchableObject;
 	collidableObject: CollidableObject;
 	collidableObjects: Phaser.Physics.Arcade.Group;
+	scoreManager: ScoreManager;
 
 	constructor() {
 		super("Game");
@@ -24,6 +25,7 @@ export class Game extends Scene {
 
 		this.physics.world.setBounds(0, 0, this.scale.width, this.scale.height);
 		this.fpsText = new FpsText(this);
+		this.scoreManager = new ScoreManager(this);
 
 		this.launchableObject = new LaunchableObject(
 			this,
@@ -45,10 +47,8 @@ export class Game extends Scene {
 			this.collidableObjects.add(collidableObject);
 		}
 
-		// Configure properties for each collidable object in the group
 		this.configureCollidableObjects();
 
-		// Add colliders
 		this.physics.add.collider(this.launchableObject, this.collidableObjects);
 		this.physics.add.collider(this.collidableObjects, this.collidableObjects);
 
