@@ -18,7 +18,8 @@ export class Game extends Scene {
 		Phaser.GameObjects.GameObject,
 		{ x: number; y: number }
 	>;
-	private readonly checkInterval: number = 5000; // 5 seconds in milliseconds
+	private readonly checkInterval: number = 2500; // 2.5 seconds in milliseconds
+	finalScore: number;
 
 	constructor() {
 		super("Game");
@@ -132,6 +133,7 @@ export class Game extends Scene {
 			x: this.launchableObject.x,
 			y: this.launchableObject.y,
 		};
+
 		if (
 			this.launchableObject.x !== launchableLastPos.x ||
 			this.launchableObject.y !== launchableLastPos.y
@@ -156,7 +158,9 @@ export class Game extends Scene {
 		}
 
 		if (!movementDetected) {
-			console.log("No movement detected in the last 5 seconds.");
+			console.log("No movement detected in the last 2.5 seconds.");
+			this.scene.stop('Game')	
+			this.scene.start("GameOver", {finalScore: this.scoreManager.getScore()});
 		}
 
 		const lastLaunchableMoveTime = this.lastMovementTimes.get(
@@ -172,7 +176,7 @@ export class Game extends Scene {
 			);
 		} else {
 			console.log(
-				"The launchable object has been moved in the last 5 seconds.",
+				"The launchable object has been moved in the last 2.5 seconds.",
 			);
 		}
 	}
