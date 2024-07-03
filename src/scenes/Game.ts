@@ -68,6 +68,7 @@ export class Game extends Scene {
 				}
 			},
 		);
+
 		this.physics.add.collider(
 			this.collidableObjects,
 			this.collidableObjects,
@@ -108,16 +109,16 @@ export class Game extends Scene {
 
 	private updateMovementTimes() {
 		const children = this.collidableObjects.getChildren();
-
+	
 		for (let i = 0; i < children.length; i++) {
-			const obj = children[i] as Phaser.GameObjects.GameObject;
+			const obj = children[i] as Phaser.Physics.Arcade.Sprite;
 			const lastPos = this.lastPositions.get(obj) || { x: obj.x, y: obj.y };
 			if (obj.x !== lastPos.x || obj.y !== lastPos.y) {
 				this.lastMovementTimes.set(obj, this.time.now);
 				this.lastPositions.set(obj, { x: obj.x, y: obj.y });
 			}
 		}
-
+	
 		const launchableLastPos = this.lastPositions.get(this.launchableObject) || { x: this.launchableObject.x, y: this.launchableObject.y };
 		if (this.launchableObject.x !== launchableLastPos.x || this.launchableObject.y !== launchableLastPos.y) {
 			this.lastMovementTimes.set(this.launchableObject, this.time.now);
@@ -128,18 +129,18 @@ export class Game extends Scene {
 	private checkMovement() {
 		const currentTime = this.time.now;
 		let movementDetected = false;
-
-		for (const [obj, lastMoveTime] of this.lastMovementTimes) {
+	
+		for (const [, lastMoveTime] of this.lastMovementTimes) {
 			if (currentTime - lastMoveTime <= this.checkInterval) {
 				movementDetected = true;
 				break; // No need to continue if movement is detected
 			}
 		}
-
+	
 		if (!movementDetected) {
 			console.log('No movement detected in the last 5 seconds.');
 		}
-
+	
 		const lastLaunchableMoveTime = this.lastMovementTimes.get(this.launchableObject);
 		if (lastLaunchableMoveTime && (currentTime - lastLaunchableMoveTime > this.checkInterval)) {
 			console.log('Launchable object has not been moved:', this.launchableObject);
