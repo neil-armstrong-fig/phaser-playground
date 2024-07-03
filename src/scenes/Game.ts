@@ -13,8 +13,14 @@ export class Game extends Scene {
 	collidableObjects: Phaser.Physics.Arcade.Group;
 	scoreManager: ScoreManager;
 
+	private lastMovementTimes: Map<Phaser.GameObjects.GameObject, number>;
+	private lastPositions: Map<Phaser.GameObjects.GameObject, { x: number, y: number }>;
+	private readonly checkInterval: number = 5000; // 5 seconds in milliseconds
+
 	constructor() {
 		super("Game");
+		this.lastMovementTimes = new Map();
+		this.lastPositions = new Map();
 	}
 
 	create() {
@@ -32,10 +38,11 @@ export class Game extends Scene {
 			this.cameras.main.width / 4,
 			this.cameras.main.height / 2,
 		);
+		this.lastMovementTimes.set(this.launchableObject, this.time.now);
+		this.lastPositions.set(this.launchableObject, { x: this.launchableObject.x, y: this.launchableObject.y });
 
 		this.collidableObjects = this.physics.add.group();
 
-		// Add multiple CollidableObjects to the group
 		const positions = [
 			{ x: 500, y: 300 },
 			{ x: 700, y: 400 },
@@ -45,6 +52,8 @@ export class Game extends Scene {
 		for (const pos of positions) {
 			const collidableObject = new CollidableObject(this, pos.x, pos.y);
 			this.collidableObjects.add(collidableObject);
+			this.lastMovementTimes.set(collidableObject, this.time.now);
+			this.lastPositions.set(collidableObject, { x: collidableObject.x, y: collidableObject.y });
 		}
 
 		this.configureCollidableObjects();
@@ -70,8 +79,14 @@ export class Game extends Scene {
 			},
 		);
 
-		// Debugging to figure out world bounds
 		this.physics.world.createDebugGraphic();
+
+		this.time.addEvent({
+			delay: this.checkInterval,
+			callback: this.checkMovement,
+			callbackScope: this,
+			loop: true
+		});
 	}
 
 	configureCollidableObjects() {
@@ -88,5 +103,48 @@ export class Game extends Scene {
 	update() {
 		this.fpsText.update();
 		this.scoreManager.updateScoreText();
+		this.updateMovementTimes();
+	}
+
+	private updateMovementTimes() {
+		const children = this.collidableObjects.getChildren();
+
+		for (let i = 0; i < children.length; i++) {
+			const obj = children[i] as Phaser.GameObjects.GameObject;
+			const lastPos = this.lastPositions.get(obj) || { x: obj.x, y: obj.y };
+			if (obj.x !== lastPos.x || obj.y !== lastPos.y) {
+				this.lastMovementTimes.set(obj, this.time.now);
+				this.lastPositions.set(obj, { x: obj.x, y: obj.y });
+			}
+		}
+
+		const launchableLastPos = this.lastPositions.get(this.launchableObject) || { x: this.launchableObject.x, y: this.launchableObject.y };
+		if (this.launchableObject.x !== launchableLastPos.x || this.launchableObject.y !== launchableLastPos.y) {
+			this.lastMovementTimes.set(this.launchableObject, this.time.now);
+			this.lastPositions.set(this.launchableObject, { x: this.launchableObject.x, y: this.launchableObject.y });
+		}
+	}
+
+	private checkMovement() {
+		const currentTime = this.time.now;
+		let movementDetected = false;
+
+		for (const [obj, lastMoveTime] of this.lastMovementTimes) {
+			if (currentTime - lastMoveTime <= this.checkInterval) {
+				movementDetected = true;
+				break; // No need to continue if movement is detected
+			}
+		}
+
+		if (!movementDetected) {
+			console.log('No movement detected in the last 5 seconds.');
+		}
+
+		const lastLaunchableMoveTime = this.lastMovementTimes.get(this.launchableObject);
+		if (lastLaunchableMoveTime && (currentTime - lastLaunchableMoveTime > this.checkInterval)) {
+			console.log('Launchable object has not been moved:', this.launchableObject);
+		} else {
+			console.log('The launchable object has been moved in the last 5 seconds.');
+		}
 	}
 }
