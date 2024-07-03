@@ -14,7 +14,10 @@ export class Game extends Scene {
 	scoreManager: ScoreManager;
 
 	private lastMovementTimes: Map<Phaser.GameObjects.GameObject, number>;
-	private lastPositions: Map<Phaser.GameObjects.GameObject, { x: number, y: number }>;
+	private lastPositions: Map<
+		Phaser.GameObjects.GameObject,
+		{ x: number; y: number }
+	>;
 	private readonly checkInterval: number = 5000; // 5 seconds in milliseconds
 
 	constructor() {
@@ -39,7 +42,10 @@ export class Game extends Scene {
 			this.cameras.main.height / 2,
 		);
 		this.lastMovementTimes.set(this.launchableObject, this.time.now);
-		this.lastPositions.set(this.launchableObject, { x: this.launchableObject.x, y: this.launchableObject.y });
+		this.lastPositions.set(this.launchableObject, {
+			x: this.launchableObject.x,
+			y: this.launchableObject.y,
+		});
 
 		this.collidableObjects = this.physics.add.group();
 
@@ -53,7 +59,10 @@ export class Game extends Scene {
 			const collidableObject = new CollidableObject(this, pos.x, pos.y);
 			this.collidableObjects.add(collidableObject);
 			this.lastMovementTimes.set(collidableObject, this.time.now);
-			this.lastPositions.set(collidableObject, { x: collidableObject.x, y: collidableObject.y });
+			this.lastPositions.set(collidableObject, {
+				x: collidableObject.x,
+				y: collidableObject.y,
+			});
 		}
 
 		this.configureCollidableObjects();
@@ -86,7 +95,7 @@ export class Game extends Scene {
 			delay: this.checkInterval,
 			callback: this.checkMovement,
 			callbackScope: this,
-			loop: true
+			loop: true,
 		});
 	}
 
@@ -109,7 +118,7 @@ export class Game extends Scene {
 
 	private updateMovementTimes() {
 		const children = this.collidableObjects.getChildren();
-	
+
 		for (let i = 0; i < children.length; i++) {
 			const obj = children[i] as Phaser.Physics.Arcade.Sprite;
 			const lastPos = this.lastPositions.get(obj) || { x: obj.x, y: obj.y };
@@ -118,34 +127,53 @@ export class Game extends Scene {
 				this.lastPositions.set(obj, { x: obj.x, y: obj.y });
 			}
 		}
-	
-		const launchableLastPos = this.lastPositions.get(this.launchableObject) || { x: this.launchableObject.x, y: this.launchableObject.y };
-		if (this.launchableObject.x !== launchableLastPos.x || this.launchableObject.y !== launchableLastPos.y) {
+
+		const launchableLastPos = this.lastPositions.get(this.launchableObject) || {
+			x: this.launchableObject.x,
+			y: this.launchableObject.y,
+		};
+		if (
+			this.launchableObject.x !== launchableLastPos.x ||
+			this.launchableObject.y !== launchableLastPos.y
+		) {
 			this.lastMovementTimes.set(this.launchableObject, this.time.now);
-			this.lastPositions.set(this.launchableObject, { x: this.launchableObject.x, y: this.launchableObject.y });
+			this.lastPositions.set(this.launchableObject, {
+				x: this.launchableObject.x,
+				y: this.launchableObject.y,
+			});
 		}
 	}
 
 	private checkMovement() {
 		const currentTime = this.time.now;
 		let movementDetected = false;
-	
+
 		for (const [, lastMoveTime] of this.lastMovementTimes) {
 			if (currentTime - lastMoveTime <= this.checkInterval) {
 				movementDetected = true;
 				break; // No need to continue if movement is detected
 			}
 		}
-	
+
 		if (!movementDetected) {
-			console.log('No movement detected in the last 5 seconds.');
+			console.log("No movement detected in the last 5 seconds.");
 		}
-	
-		const lastLaunchableMoveTime = this.lastMovementTimes.get(this.launchableObject);
-		if (lastLaunchableMoveTime && (currentTime - lastLaunchableMoveTime > this.checkInterval)) {
-			console.log('Launchable object has not been moved:', this.launchableObject);
+
+		const lastLaunchableMoveTime = this.lastMovementTimes.get(
+			this.launchableObject,
+		);
+		if (
+			lastLaunchableMoveTime &&
+			currentTime - lastLaunchableMoveTime > this.checkInterval
+		) {
+			console.log(
+				"Launchable object has not been moved:",
+				this.launchableObject,
+			);
 		} else {
-			console.log('The launchable object has been moved in the last 5 seconds.');
+			console.log(
+				"The launchable object has been moved in the last 5 seconds.",
+			);
 		}
 	}
 }
