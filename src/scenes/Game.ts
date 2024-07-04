@@ -39,7 +39,7 @@ export class Game extends Scene {
 
 		this.launchableObject = new LaunchableObject(
 			this,
-			this.cameras.main.width / 4,
+			thissrc.cameras.main.width / 4,
 			this.cameras.main.height / 2,
 		);
 		this.lastMovementTimes.set(this.launchableObject, this.time.now);
@@ -159,8 +159,10 @@ export class Game extends Scene {
 
 		if (!movementDetected) {
 			console.log("No movement detected in the last 2.5 seconds.");
-			this.scene.stop('Game')	
-			this.scene.start("GameOver", {finalScore: this.scoreManager.getScore()});
+			this.scene.stop("Game");
+			this.scene.start("GameOver", {
+				finalScore: this.scoreManager.getScore(),
+			});
 		}
 
 		const lastLaunchableMoveTime = this.lastMovementTimes.get(

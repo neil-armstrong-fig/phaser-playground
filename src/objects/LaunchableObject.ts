@@ -5,6 +5,7 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 	private dragStartPoint: Phaser.Math.Vector2;
 	private dragEndPoint: Phaser.Math.Vector2;
 	private dragLine: Phaser.GameObjects.Graphics;
+	private dragRelativePoint: Phaser.Math.Vector2;
 
 	constructor(scene: Phaser.Scene, x: number, y: number) {
 		super(scene, x, y, "LaunchableObject");
@@ -14,7 +15,9 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 		this.setInteractive();
 		this.setCollideWorldBounds(true);
 		this.setBounce(0.8, 0.8);
-		this.setDrag(50, 50); // Bounce is a percentage of bleed, while drag is in px/s
+		this.setDrag(50, 50); // Linear drag in px/s
+
+		this.setAngularDrag(50); // Angular drag in degrees/s
 
 		scene.input.setDraggable(this);
 		this.dragLine = scene.add.graphics();
@@ -23,12 +26,13 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 		scene.input.on(
 			"dragstart",
 			(
-				_pointer: Phaser.Input.Pointer,
+				pointer: Phaser.Input.Pointer,
 				gameObject: Phaser.GameObjects.GameObject,
 			) => {
 				if (gameObject === this) {
 					this.isDragging = true;
 					this.dragStartPoint = new Phaser.Math.Vector2(this.x, this.y);
+					this.dragRelativePoint = new Phaser.Math.Vector2(pointer.x - this.x, pointer.y - this.y);
 				}
 			},
 		);
@@ -71,6 +75,14 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 					// Launch the object
 					const launchVelocity = direction.scale(power);
 					this.setVelocity(launchVelocity.x, launchVelocity.y);
+
+					// Calculate angular velocity
+					const dragEndRelativePoint = new Phaser.Math.Vector2(pointer.x - this.x, pointer.y - this.y);
+					const torque = this.dragRelativePoint.cross(dragEndRelativePoint);
+					const angularVelocity = torque * 0.1; // Adjust the multiplier for desired angular velocity
+
+					// Set angular velocity
+					this.setAngularVelocity(angularVelocity);
 				}
 			},
 		);
