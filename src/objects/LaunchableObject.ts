@@ -16,9 +16,8 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 		this.setCollideWorldBounds(true);
 		this.setBounce(0.8, 0.8);
 		this.setDrag(50, 50); // Linear drag in px/s
-
 		this.setAngularDrag(50); // Angular drag in degrees/s
-
+		this.setCircle(this.width / 2);
 		scene.input.setDraggable(this);
 		this.dragLine = scene.add.graphics();
 		this.dragLine.lineStyle(2, 0x00ff00, 1);

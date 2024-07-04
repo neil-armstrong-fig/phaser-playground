@@ -39,7 +39,7 @@ export class Game extends Scene {
 
 		this.launchableObject = new LaunchableObject(
 			this,
-			thissrc.cameras.main.width / 4,
+			this.cameras.main.width / 4,
 			this.cameras.main.height / 2,
 		);
 		this.lastMovementTimes.set(this.launchableObject, this.time.now);
@@ -105,6 +105,7 @@ export class Game extends Scene {
 			collidableObject.setGravity(0, 0);
 			collidableObject.setBounce(0.8, 0.8);
 			collidableObject.setDrag(50, 50);
+			collidableObject.setAngularDrag(50); 
 			collidableObject.setImmovable(false);
 			collidableObject.setCollideWorldBounds(true);
 			collidableObject.setInteractive();
