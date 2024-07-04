@@ -73,6 +73,7 @@ export class Game extends Scene {
 			this.collidableObjects,
 			(launchableObject, collidableObjects) => {
 				if (launchableObject.body.touching && collidableObjects.body.touching) {
+					this.handleCollision(launchableObject, collidableObjects)
 					console.log("green on red hit!");
 					this.scoreManager.increaseScore(10);
 				}
@@ -84,6 +85,7 @@ export class Game extends Scene {
 			this.collidableObjects,
 			(collidableObject) => {
 				if (collidableObject.body.touching && collidableObject.body.touching) {
+					this.handleCollision(collidableObject, collidableObject)
 					console.log("red on red hit!");
 					this.scoreManager.increaseScore(5);
 				}
@@ -116,6 +118,41 @@ export class Game extends Scene {
 		this.fpsText.update();
 		this.scoreManager.updateScoreText();
 		this.updateMovementTimes();
+	}
+
+
+	private handleCollision(object1: Phaser.Physics.Arcade.Sprite, object2: Phaser.Physics.Arcade.Sprite) {
+		// Determine which object is the launchable object and which is the collidable object
+		const launchableObject = object1 === this.launchableObject ? object1 : object2;
+		const collidableObject = object1 === this.launchableObject ? object2 : object1;
+
+		// Calculate impact point relative to the collidable object's center
+		const impactPoint = new Phaser.Math.Vector2(
+			launchableObject.body.x + launchableObject.body.halfWidth,
+			launchableObject.body.y + launchableObject.body.halfHeight
+		);
+
+		const collidableCenter = new Phaser.Math.Vector2(
+			collidableObject.body.x + collidableObject.body.halfWidth,
+			collidableObject.body.y + collidableObject.body.halfHeight
+		);
+
+		const impactVector = impactPoint.subtract(collidableCenter);
+		const forceMagnitude = launchableObject.body.velocity.length();
+		const torque = impactVector.length() * forceMagnitude;
+
+		const angularVelocity = torque * 0.01; // Adjust the multiplier for desired angular velocity
+
+		// Apply angular velocity to the collidable object
+		collidableObject.setAngularVelocity(angularVelocity);
+
+		if (launchableObject === this.launchableObject) {
+			console.log("green on red hit!");
+			this.scoreManager.increaseScore(10);
+		} else {
+			console.log("red on red hit!");
+			this.scoreManager.increaseScore(5);
+		}
 	}
 
 	private updateMovementTimes() {
