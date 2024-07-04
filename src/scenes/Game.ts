@@ -104,7 +104,7 @@ export class Game extends Scene {
 			collidableObject.setGravity(0, 0);
 			collidableObject.setBounce(0.8, 0.8);
 			collidableObject.setDrag(50, 50);
-			collidableObject.setAngularDrag(50); 
+			collidableObject.setAngularDrag(180); 
 			collidableObject.setImmovable(false);
 			collidableObject.setCollideWorldBounds(true);
 			collidableObject.setInteractive();
