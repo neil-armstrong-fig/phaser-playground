@@ -14,10 +14,7 @@ export class Game extends Scene {
 	scoreManager: ScoreManager;
 
 	private lastMovementTimes: Map<Phaser.GameObjects.GameObject, number>;
-	private lastPositions: Map<
-		Phaser.GameObjects.GameObject,
-		{ x: number; y: number }
-	>;
+	private lastPositions: Map<Phaser.GameObjects.GameObject, { x: number; y: number }>;
 	private readonly checkInterval: number = 2500; // 2.5 seconds in milliseconds
 	finalScore: number;
 
@@ -27,7 +24,7 @@ export class Game extends Scene {
 		this.lastPositions = new Map();
 	}
 
-	create() {
+	create(): void {
 		this.camera = this.cameras.main;
 		this.camera.setBackgroundColor(0x00ff00);
 		this.background = this.add.image(512, 384, "background");
@@ -40,7 +37,7 @@ export class Game extends Scene {
 		this.launchableObject = new LaunchableObject(
 			this,
 			this.cameras.main.width / 4,
-			this.cameras.main.height / 2,
+			this.cameras.main.height / 2
 		);
 		this.lastMovementTimes.set(this.launchableObject, this.time.now);
 		this.lastPositions.set(this.launchableObject, {
@@ -71,25 +68,25 @@ export class Game extends Scene {
 		this.physics.add.collider(
 			this.launchableObject,
 			this.collidableObjects,
-			(launchableObject, collidableObjects) => {
+			(launchableObject: Phaser.Physics.Arcade.Sprite, collidableObjects: Phaser.Physics.Arcade.Sprite) => {
 				if (launchableObject.body.touching && collidableObjects.body.touching) {
-					this.handleCollision(launchableObject, collidableObjects)
+					this.handleCollision(launchableObject, collidableObjects);
 					console.log("green on red hit!");
 					this.scoreManager.increaseScore(10);
 				}
-			},
+			}
 		);
 
 		this.physics.add.collider(
 			this.collidableObjects,
 			this.collidableObjects,
-			(collidableObject) => {
+			(collidableObject: Phaser.Physics.Arcade.Sprite) => {
 				if (collidableObject.body.touching && collidableObject.body.touching) {
-					this.handleCollision(collidableObject, collidableObject)
+					this.handleCollision(collidableObject, collidableObject);
 					console.log("red on red hit!");
 					this.scoreManager.increaseScore(5);
 				}
-			},
+			}
 		);
 
 		this.physics.world.createDebugGraphic();
@@ -102,7 +99,7 @@ export class Game extends Scene {
 		});
 	}
 
-	configureCollidableObjects() {
+	configureCollidableObjects(): void {
 		for (const collidableObject of this.collidableObjects.getChildren() as CollidableObject[]) {
 			collidableObject.setGravity(0, 0);
 			collidableObject.setBounce(0.8, 0.8);
@@ -114,48 +111,59 @@ export class Game extends Scene {
 		}
 	}
 
-	update() {
+	update(): void {
 		this.fpsText.update();
 		this.scoreManager.updateScoreText();
 		this.updateMovementTimes();
 	}
 
-
-	private handleCollision(object1: Phaser.Physics.Arcade.Sprite, object2: Phaser.Physics.Arcade.Sprite) {
-		// Determine which object is the launchable object and which is the collidable object
-		const launchableObject = object1 === this.launchableObject ? object1 : object2;
-		const collidableObject = object1 === this.launchableObject ? object2 : object1;
-
-		// Calculate impact point relative to the collidable object's center
-		const impactPoint = new Phaser.Math.Vector2(
-			launchableObject.body.x + launchableObject.body.halfWidth,
-			launchableObject.body.y + launchableObject.body.halfHeight
-		);
-
-		const collidableCenter = new Phaser.Math.Vector2(
-			collidableObject.body.x + collidableObject.body.halfWidth,
-			collidableObject.body.y + collidableObject.body.halfHeight
-		);
-
-		const impactVector = impactPoint.subtract(collidableCenter);
-		const forceMagnitude = launchableObject.body.velocity.length();
-		const torque = impactVector.length() * forceMagnitude;
-
-		const angularVelocity = torque * 0.01; // Adjust the multiplier for desired angular velocity
-
-		// Apply angular velocity to the collidable object
-		collidableObject.setAngularVelocity(angularVelocity);
-
-		if (launchableObject === this.launchableObject) {
-			console.log("green on red hit!");
-			this.scoreManager.increaseScore(10);
-		} else {
-			console.log("red on red hit!");
-			this.scoreManager.increaseScore(5);
+	private handleCollision(object1: Phaser.Physics.Arcade.Sprite, object2: Phaser.Physics.Arcade.Sprite): void {
+		// Identify the types of the objects involved in the collision
+		const isObject1Launchable = object1 === this.launchableObject;
+		const isObject2Launchable = object2 === this.launchableObject;
+	
+		const isObject1Collidable = this.collidableObjects.contains(object1);
+		const isObject2Collidable = this.collidableObjects.contains(object2);
+	
+		// Ensure at least one of the objects is launchable or both are collidable
+		if ((isObject1Launchable || isObject2Launchable) || (isObject1Collidable && isObject2Collidable)) {
+			const primaryObject = isObject1Launchable ? object1 : object2;
+			const secondaryObject = isObject1Launchable ? object2 : object1;
+	
+			// Calculate the impact point relative to the secondary object's center
+			const impactPoint = new Phaser.Math.Vector2(
+				primaryObject.body.x + primaryObject.body.halfWidth,
+				primaryObject.body.y + primaryObject.body.halfHeight
+			);
+	
+			const secondaryCenter = new Phaser.Math.Vector2(
+				secondaryObject.body.x + secondaryObject.body.halfWidth,
+				secondaryObject.body.y + secondaryObject.body.halfHeight
+			);
+	
+			const impactVector = impactPoint.subtract(secondaryCenter);
+			const forceMagnitude = primaryObject.body.velocity.length();
+			const torque = impactVector.length() * forceMagnitude;
+	
+			// Adjust the multiplier for desired angular velocity
+			const angularVelocity = torque * 0.01;
+	
+			// Apply angular velocity to the secondary object
+			secondaryObject.setAngularVelocity(angularVelocity);
+	
+			// Update the score based on the types of objects involved
+			if (isObject1Launchable || isObject2Launchable) {
+				console.log("green on red hit!");
+				this.scoreManager.increaseScore(10);
+			} else {
+				console.log("red on red hit!");
+				this.scoreManager.increaseScore(5);
+			}
 		}
 	}
+	
 
-	private updateMovementTimes() {
+	private updateMovementTimes(): void {
 		const children = this.collidableObjects.getChildren();
 
 		for (let i = 0; i < children.length; i++) {
@@ -184,7 +192,7 @@ export class Game extends Scene {
 		}
 	}
 
-	private checkMovement() {
+	private checkMovement(): void {
 		const currentTime = this.time.now;
 		let movementDetected = false;
 
@@ -203,21 +211,14 @@ export class Game extends Scene {
 			});
 		}
 
-		const lastLaunchableMoveTime = this.lastMovementTimes.get(
-			this.launchableObject,
-		);
+		const lastLaunchableMoveTime = this.lastMovementTimes.get(this.launchableObject);
 		if (
 			lastLaunchableMoveTime &&
 			currentTime - lastLaunchableMoveTime > this.checkInterval
 		) {
-			console.log(
-				"Launchable object has not been moved:",
-				this.launchableObject,
-			);
+			console.log("Launchable object has not been moved:", this.launchableObject);
 		} else {
-			console.log(
-				"The launchable object has been moved in the last 2.5 seconds.",
-			);
+			console.log("The launchable object has been moved in the last 2.5 seconds.");
 		}
 	}
 }
