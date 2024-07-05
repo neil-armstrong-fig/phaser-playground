@@ -1,6 +1,8 @@
 import "phaser";
 
-export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
+export default class LaunchableObject extends Phaser.GameObjects.Sprite {
+	declare body: Phaser.Physics.Arcade.Body;
+
 	private isDragging = false;
 	private dragStartPoint: Phaser.Math.Vector2;
 	private dragEndPoint: Phaser.Math.Vector2;
@@ -9,18 +11,18 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 
 	public hasInteracted = false;
 
-
 	constructor(scene: Phaser.Scene, x: number, y: number) {
 		super(scene, x, y, "LaunchableObject");
 		scene.add.existing(this);
 		scene.physics.add.existing(this);
 
 		this.setInteractive();
-		this.setCollideWorldBounds(true);
-		this.setBounce(0.8, 0.8);
-		this.setDrag(50, 50); // Linear drag in px/s
-		this.setAngularDrag(180); // Angular drag in degrees/s
-		this.setCircle(this.width / 2);
+
+		this.body.setCollideWorldBounds(true);
+		this.body.setBounce(0.8, 0.8);
+		this.body.setDrag(50, 50); // Linear drag in px/s
+		this.body.setAngularDrag(180); // Angular drag in degrees/s
+		this.body.setCircle(this.width / 2);
 		scene.input.setDraggable(this);
 		this.dragLine = scene.add.graphics();
 		this.dragLine.lineStyle(2, 0x00ff00, 1);
@@ -34,7 +36,10 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 				if (gameObject === this && !this.hasInteracted) {
 					this.isDragging = true;
 					this.dragStartPoint = new Phaser.Math.Vector2(this.x, this.y);
-					this.dragRelativePoint = new Phaser.Math.Vector2(pointer.x - this.x, pointer.y - this.y);
+					this.dragRelativePoint = new Phaser.Math.Vector2(
+						pointer.x - this.x,
+						pointer.y - this.y,
+					);
 				}
 			},
 		);
@@ -77,15 +82,18 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 
 					// Launch the object
 					const launchVelocity = direction.scale(power);
-					this.setVelocity(launchVelocity.x, launchVelocity.y);
+					this.body.setVelocity(launchVelocity.x, launchVelocity.y);
 
 					// Calculate angular velocity
-					const dragEndRelativePoint = new Phaser.Math.Vector2(pointer.x - this.x, pointer.y - this.y);
+					const dragEndRelativePoint = new Phaser.Math.Vector2(
+						pointer.x - this.x,
+						pointer.y - this.y,
+					);
 					const torque = this.dragRelativePoint.cross(dragEndRelativePoint);
 					const angularVelocity = torque * 0.1; // Adjust the multiplier for desired angular velocity
 
 					// Set angular velocity
-					this.setAngularVelocity(angularVelocity);
+					this.body.setAngularVelocity(angularVelocity);
 				}
 			},
 		);
