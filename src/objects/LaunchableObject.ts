@@ -1,6 +1,7 @@
 import "phaser";
 
 export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
+	private hasInteracted = false;
 	private isDragging = false;
 	private dragStartPoint: Phaser.Math.Vector2;
 	private dragEndPoint: Phaser.Math.Vector2;
@@ -28,7 +29,7 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 				pointer: Phaser.Input.Pointer,
 				gameObject: Phaser.GameObjects.GameObject,
 			) => {
-				if (gameObject === this) {
+				if (gameObject === this && !this.hasInteracted) {
 					this.isDragging = true;
 					this.dragStartPoint = new Phaser.Math.Vector2(this.x, this.y);
 					this.dragRelativePoint = new Phaser.Math.Vector2(pointer.x - this.x, pointer.y - this.y);
@@ -60,6 +61,7 @@ export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
 				_gameObject: Phaser.GameObjects.GameObject,
 			) => {
 				if (this.isDragging) {
+					this.hasInteracted = true;
 					this.isDragging = false;
 					this.dragLine.clear();
 					this.dragEndPoint = new Phaser.Math.Vector2(pointer.x, pointer.y);
