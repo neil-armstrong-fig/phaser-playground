@@ -1,12 +1,14 @@
 import "phaser";
 
 export default class LaunchableObject extends Phaser.Physics.Arcade.Sprite {
-	private hasInteracted = false;
 	private isDragging = false;
 	private dragStartPoint: Phaser.Math.Vector2;
 	private dragEndPoint: Phaser.Math.Vector2;
 	private dragLine: Phaser.GameObjects.Graphics;
 	private dragRelativePoint: Phaser.Math.Vector2;
+
+	public hasInteracted = false;
+
 
 	constructor(scene: Phaser.Scene, x: number, y: number) {
 		super(scene, x, y, "LaunchableObject");
