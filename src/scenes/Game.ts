@@ -15,7 +15,10 @@ export class Game extends Scene {
 	private launchableObjectFactory: LaunchableObjectFactory;
 	private maxLaunchableObjects = 2;
 	private lastMovementTimes: Map<Phaser.GameObjects.GameObject, number>;
-	private lastPositions: Map<Phaser.GameObjects.GameObject, { x: number; y: number }>;
+	private lastPositions: Map<
+		Phaser.GameObjects.GameObject,
+		{ x: number; y: number }
+	>;
 	private readonly checkInterval: number = 2500; // 2.5 seconds in milliseconds
 	finalScore: number;
 
@@ -76,33 +79,51 @@ export class Game extends Scene {
 		this.physics.add.collider(
 			this.launchableObjects,
 			this.collidableObjects,
-			(launchableObject: LaunchableObject, collidableObject: CollidableObject) => {
-				if (launchableObject.body.touching && collidableObject.body.touching) {
-					this.handleCollision(launchableObject, collidableObject, 10);
-					console.log("green on red hit!");
+			(launchableObject, collidableObject) => {
+				if (this.isLaunchableObject(launchableObject) && this.isCollidableObject(collidableObject)) {
+					if (launchableObject.body.touching && collidableObject.body.touching) {
+						this.handleCollision(launchableObject, collidableObject, 10);
+						console.log("green on red hit!");
+					}
 				}
 			}
 		);
+	
 		this.physics.add.collider(
 			this.launchableObjects,
 			this.launchableObjects,
-			(launchableObject: LaunchableObject) => {
-				if (launchableObject.body.touching && launchableObject.body.touching) {
-					this.handleCollision(launchableObject, launchableObject, 15);
-					console.log("green on green hit!");
+			(launchableObject1, launchableObject2) => {
+				if (this.isLaunchableObject(launchableObject1) && this.isLaunchableObject(launchableObject2)) {
+					if (launchableObject1.body.touching && launchableObject2.body.touching) {
+						this.handleCollision(launchableObject1, launchableObject2, 15);
+						console.log("green on green hit!");
+					}
 				}
 			}
 		);
+	
 		this.physics.add.collider(
 			this.collidableObjects,
 			this.collidableObjects,
-			(collidableObject) => {
-				if (collidableObject.body.touching && collidableObject.body.touching) {
-					this.handleCollision(collidableObject, collidableObject, 5);
-					console.log("red on red hit!");
+			(collidableObject1, collidableObject2) => {
+				if (this.isCollidableObject(collidableObject1) && this.isCollidableObject(collidableObject2)) {
+					if (collidableObject1.body.touching && collidableObject2.body.touching) {
+						this.handleCollision(collidableObject1, collidableObject2, 5);
+						console.log("red on red hit!");
+					}
 				}
 			}
 		);
+	}
+	
+	// biome-ignore lint/suspicious/noExplicitAny: checks type
+		private isLaunchableObject(obj: any): obj is LaunchableObject {
+		return 'isDragging' in obj;
+	}
+	
+	// biome-ignore lint/suspicious/noExplicitAny: checks type
+		private isCollidableObject(obj: any): obj is CollidableObject {
+		return 'setProperties' in obj;
 	}
 
 	private addTimers(): void {
@@ -122,8 +143,14 @@ export class Game extends Scene {
 	}
 
 	private spawnInitialLaunchableObjects(): void {
-		this.addLaunchableObject(this.cameras.main.width / 4, this.cameras.main.height / 2);
-		this.addLaunchableObject(this.cameras.main.width / 2, this.cameras.main.height / 2);
+		this.addLaunchableObject(
+			this.cameras.main.width / 4,
+			this.cameras.main.height / 2,
+		);
+		this.addLaunchableObject(
+			this.cameras.main.width / 2,
+			this.cameras.main.height / 2,
+		);
 	}
 
 	private addLaunchableObject(x: number, y: number): void {
@@ -139,39 +166,55 @@ export class Game extends Scene {
 
 	private spawnNewLaunchableObjectIfNecessary(): void {
 		if (this.shouldSpawnNewLaunchableObject()) {
-			this.addLaunchableObject(this.cameras.main.width / 4, this.cameras.main.height / 2);
+			this.addLaunchableObject(
+				this.cameras.main.width / 4,
+				this.cameras.main.height / 2,
+			);
 		}
 	}
 
 	private shouldSpawnNewLaunchableObject(): boolean {
 		const firstLaunchableObject = this.launchableObjects[0];
-		return firstLaunchableObject.hasInteracted && this.launchableObjects.length < this.maxLaunchableObjects;
+		return (
+			firstLaunchableObject.hasInteracted &&
+			this.launchableObjects.length < this.maxLaunchableObjects
+		);
 	}
 
 	private handleCollision(
 		object1: CollidableObject | LaunchableObject,
 		object2: CollidableObject | LaunchableObject,
-		score: number
+		score: number,
 	): void {
-		if (object1.body.touching && object2.body.touching) {
+		if (
+			(object1 as CollidableObject | LaunchableObject).body.touching &&
+			(object2 as CollidableObject | LaunchableObject).body.touching
+		) {
 			this.handleCollisionEffects(object1, object2, score);
 		}
 	}
 
-	private handleCollisionEffects(object1: CollidableObject | LaunchableObject, object2: CollidableObject | LaunchableObject, score: number): void {
+	private handleCollisionEffects(
+		object1: CollidableObject | LaunchableObject,
+		object2: CollidableObject | LaunchableObject,
+		score: number,
+	): void {
 		this.applyAngularVelocity(object1, object2);
 		this.scoreManager.increaseScore(score);
 	}
 
-	private applyAngularVelocity(object1: CollidableObject | LaunchableObject , object2: CollidableObject | LaunchableObject): void {
+	private applyAngularVelocity(
+		object1: CollidableObject | LaunchableObject,
+		object2: CollidableObject | LaunchableObject,
+	): void {
 		const impactPoint = new Phaser.Math.Vector2(
 			object1.body.x + object1.body.halfWidth,
-			object1.body.y + object1.body.halfHeight
+			object1.body.y + object1.body.halfHeight,
 		);
 
 		const secondaryCenter = new Phaser.Math.Vector2(
 			object2.body.x + object2.body.halfWidth,
-			object2.body.y + object2.body.halfHeight
+			object2.body.y + object2.body.halfHeight,
 		);
 
 		const impactVector = impactPoint.subtract(secondaryCenter);
@@ -184,8 +227,8 @@ export class Game extends Scene {
 
 	private updateMovementTimes(): void {
 		const children = this.collidableObjects.getChildren();
-		for (const obj of children as CollidableObject[]) {
-			this.updateObjectMovementTime(obj);
+		for (const obj of children as Phaser.GameObjects.GameObject[]) {
+			this.updateObjectMovementTime(obj as CollidableObject);
 		}
 
 		for (const launchableObject of this.launchableObjects) {
@@ -193,7 +236,9 @@ export class Game extends Scene {
 		}
 	}
 
-	private updateObjectMovementTime(obj: CollidableObject | LaunchableObject): void {
+	private updateObjectMovementTime(
+		obj: CollidableObject | LaunchableObject,
+	): void {
 		const lastPos = this.lastPositions.get(obj) || { x: obj.x, y: obj.y };
 		if (obj.x !== lastPos.x || obj.y !== lastPos.y) {
 			this.trackMovement(obj);
@@ -229,11 +274,17 @@ export class Game extends Scene {
 
 	private logLaunchableObjectMovement(currentTime: number): void {
 		for (const launchableObject of this.launchableObjects) {
-			const lastLaunchableMoveTime = this.lastMovementTimes.get(launchableObject);
-			if (lastLaunchableMoveTime && currentTime - lastLaunchableMoveTime > this.checkInterval) {
+			const lastLaunchableMoveTime =
+				this.lastMovementTimes.get(launchableObject);
+			if (
+				lastLaunchableMoveTime &&
+				currentTime - lastLaunchableMoveTime > this.checkInterval
+			) {
 				console.log("Launchable object has not been moved:", launchableObject);
 			} else {
-				console.log("The launchable object has been moved in the last 2.5 seconds.");
+				console.log(
+					"The launchable object has been moved in the last 2.5 seconds.",
+				);
 			}
 		}
 	}
