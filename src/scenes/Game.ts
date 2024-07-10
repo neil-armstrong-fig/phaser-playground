@@ -86,7 +86,7 @@ export class Game extends Scene {
 		this.physics.add.collider(
 			this.launchableObjects,
 			this.launchableObjects,
-			(launchableObject: LaunchableObject["body"]) => {
+			(launchableObject: LaunchableObject) => {
 				if (launchableObject.body.touching && launchableObject.body.touching) {
 					this.handleCollision(launchableObject, launchableObject, 15);
 					console.log("green on green hit!");
@@ -96,7 +96,7 @@ export class Game extends Scene {
 		this.physics.add.collider(
 			this.collidableObjects,
 			this.collidableObjects,
-			(collidableObject: any) => {
+			(collidableObject) => {
 				if (collidableObject.body.touching && collidableObject.body.touching) {
 					this.handleCollision(collidableObject, collidableObject, 5);
 					console.log("red on red hit!");
@@ -132,7 +132,7 @@ export class Game extends Scene {
 		this.trackMovement(launchableObject);
 	}
 
-	private trackMovement(obj: Phaser.GameObjects.GameObject): void {
+	private trackMovement(obj: CollidableObject | LaunchableObject): void {
 		this.lastMovementTimes.set(obj, this.time.now);
 		this.lastPositions.set(obj, { x: obj.x, y: obj.y });
 	}
@@ -149,8 +149,8 @@ export class Game extends Scene {
 	}
 
 	private handleCollision(
-		object1: typeof Phaser.Physics.Arcade,
-		object2: Phaser.Physics.Arcade.Sprite,
+		object1: CollidableObject | LaunchableObject,
+		object2: CollidableObject | LaunchableObject,
 		score: number
 	): void {
 		if (object1.body.touching && object2.body.touching) {
@@ -158,12 +158,12 @@ export class Game extends Scene {
 		}
 	}
 
-	private handleCollisionEffects(object1: Phaser.Physics.Arcade.Sprite, object2: Phaser.Physics.Arcade.Sprite, score: number): void {
+	private handleCollisionEffects(object1: CollidableObject | LaunchableObject, object2: CollidableObject | LaunchableObject, score: number): void {
 		this.applyAngularVelocity(object1, object2);
 		this.scoreManager.increaseScore(score);
 	}
 
-	private applyAngularVelocity(object1: Phaser.GameObjects.Sprite["Body"] , object2: Phaser.GameObjects.Sprite): void {
+	private applyAngularVelocity(object1: CollidableObject | LaunchableObject , object2: CollidableObject | LaunchableObject): void {
 		const impactPoint = new Phaser.Math.Vector2(
 			object1.body.x + object1.body.halfWidth,
 			object1.body.y + object1.body.halfHeight
@@ -184,7 +184,7 @@ export class Game extends Scene {
 
 	private updateMovementTimes(): void {
 		const children = this.collidableObjects.getChildren();
-		for (const obj of children as Phaser.GameObjects.Sprite[]) {
+		for (const obj of children as CollidableObject[]) {
 			this.updateObjectMovementTime(obj);
 		}
 
@@ -193,7 +193,7 @@ export class Game extends Scene {
 		}
 	}
 
-	private updateObjectMovementTime(obj: Phaser.GameObjects.Sprite): void {
+	private updateObjectMovementTime(obj: CollidableObject | LaunchableObject): void {
 		const lastPos = this.lastPositions.get(obj) || { x: obj.x, y: obj.y };
 		if (obj.x !== lastPos.x || obj.y !== lastPos.y) {
 			this.trackMovement(obj);
