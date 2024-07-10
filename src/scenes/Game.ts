@@ -80,50 +80,68 @@ export class Game extends Scene {
 			this.launchableObjects,
 			this.collidableObjects,
 			(launchableObject, collidableObject) => {
-				if (this.isLaunchableObject(launchableObject) && this.isCollidableObject(collidableObject)) {
-					if (launchableObject.body.touching && collidableObject.body.touching) {
+				if (
+					this.isLaunchableObject(launchableObject) &&
+					this.isCollidableObject(collidableObject)
+				) {
+					if (
+						launchableObject.body.touching &&
+						collidableObject.body.touching
+					) {
 						this.handleCollision(launchableObject, collidableObject, 10);
 						console.log("green on red hit!");
 					}
 				}
-			}
+			},
 		);
-	
+
 		this.physics.add.collider(
 			this.launchableObjects,
 			this.launchableObjects,
 			(launchableObject1, launchableObject2) => {
-				if (this.isLaunchableObject(launchableObject1) && this.isLaunchableObject(launchableObject2)) {
-					if (launchableObject1.body.touching && launchableObject2.body.touching) {
+				if (
+					this.isLaunchableObject(launchableObject1) &&
+					this.isLaunchableObject(launchableObject2)
+				) {
+					if (
+						launchableObject1.body.touching &&
+						launchableObject2.body.touching
+					) {
 						this.handleCollision(launchableObject1, launchableObject2, 15);
 						console.log("green on green hit!");
 					}
 				}
-			}
+			},
 		);
-	
+
 		this.physics.add.collider(
 			this.collidableObjects,
 			this.collidableObjects,
 			(collidableObject1, collidableObject2) => {
-				if (this.isCollidableObject(collidableObject1) && this.isCollidableObject(collidableObject2)) {
-					if (collidableObject1.body.touching && collidableObject2.body.touching) {
+				if (
+					this.isCollidableObject(collidableObject1) &&
+					this.isCollidableObject(collidableObject2)
+				) {
+					if (
+						collidableObject1.body.touching &&
+						collidableObject2.body.touching
+					) {
 						this.handleCollision(collidableObject1, collidableObject2, 5);
 						console.log("red on red hit!");
 					}
 				}
-			}
+			},
 		);
 	}
-	
+
 	// biome-ignore lint/suspicious/noExplicitAny: checks type
-		private isLaunchableObject(obj: any): obj is LaunchableObject {
-		return 'isDragging' in obj;
+	private isLaunchableObject(obj: any): obj is LaunchableObject {
+		return "isDragging" in obj;
 	}
-	
+
 	// biome-ignore lint/suspicious/noExplicitAny: checks type
-		private isCollidableObject(obj: any): obj is CollidableObject {
-		return 'setProperties' in obj;
+	private isCollidableObject(obj: any): obj is CollidableObject {
+		return "setProperties" in obj;
 	}
 
 	private addTimers(): void {

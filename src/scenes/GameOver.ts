@@ -11,9 +11,10 @@ export class GameOver extends Scene {
 		super("GameOver");
 	}
 
-  init(data: any) {
-    this.finalScore = data.finalScore
-  }
+	// biome-ignore lint/suspicious/noExplicitAny: honestly, i couldn't get this to reference the FinalScore type for ScoreManager to save my life.
+	init(data: any) {
+		this.finalScore = data.finalScore;
+	}
 
 	create() {
 		this.camera = this.cameras.main;
