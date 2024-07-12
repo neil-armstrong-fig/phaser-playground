@@ -219,6 +219,11 @@ export class Game extends Scene {
 	): void {
 		this.applyAngularVelocity(object1, object2);
 		this.scoreManager.increaseScore(score);
+
+		const x = (object1.x + object2.x)/2
+		const y = (object1.y + object2.y)/2
+
+		this.createScorePopup(x, y, score)
 	}
 
 	private applyAngularVelocity(
@@ -241,6 +246,23 @@ export class Game extends Scene {
 		const angularVelocity = torque * 0.01;
 
 		object2.body.setAngularVelocity(angularVelocity);
+	}
+
+	private createScorePopup(x: number, y: number, score: number): void {
+		const scoreText = this.add.text(x, y, `+${score}`, {
+			fontSize: "24px",
+			color: "#ff0000",
+		}).setOrigin(0.5);
+	
+		this.tweens.add({
+			targets: scoreText,
+			alpha: 0,
+			duration: 2000,
+			ease: 'Power1',
+			onComplete: () => {
+				scoreText.destroy();
+			},
+		});
 	}
 
 	private updateMovementTimes(): void {
