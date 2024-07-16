@@ -5,6 +5,8 @@ import LaunchableObjectFactory from "../objects/LaunchableObjectFactory";
 import CollidableObject from "../objects/CollidableObject";
 import ScoreManager from "../objects/ScoreManager";
 
+// Import statements remain the same
+
 export class Game extends Scene {
 	camera: Phaser.Cameras.Scene2D.Camera;
 	background: Phaser.GameObjects.Image;
@@ -13,7 +15,7 @@ export class Game extends Scene {
 	collidableObjects: Phaser.Physics.Arcade.Group;
 	scoreManager: ScoreManager;
 	private launchableObjectFactory: LaunchableObjectFactory;
-	private maxLaunchableObjects = 2;
+	private maxLaunchableObjects = 4;
 	private lastMovementTimes: Map<Phaser.GameObjects.GameObject, number>;
 	private lastPositions: Map<
 		Phaser.GameObjects.GameObject,
@@ -51,7 +53,7 @@ export class Game extends Scene {
 	}
 
 	private spawnInitialObjects(): void {
-		this.spawnInitialLaunchableObjects();
+		this.spawnInitialLaunchableObject();
 		this.collidableObjects = this.physics.add.group();
 		const positions = [
 			{ x: 500, y: 200 },
@@ -160,13 +162,9 @@ export class Game extends Scene {
 		});
 	}
 
-	private spawnInitialLaunchableObjects(): void {
+	private spawnInitialLaunchableObject(): void {
 		this.addLaunchableObject(
 			this.cameras.main.width / 4,
-			this.cameras.main.height / 2,
-		);
-		this.addLaunchableObject(
-			this.cameras.main.width / 2,
 			this.cameras.main.height / 2,
 		);
 	}
@@ -220,10 +218,10 @@ export class Game extends Scene {
 		this.applyAngularVelocity(object1, object2);
 		this.scoreManager.increaseScore(score);
 
-		const x = (object1.x + object2.x)/2
-		const y = (object1.y + object2.y)/2
+		const x = (object1.x + object2.x) / 2;
+		const y = (object1.y + object2.y) / 2;
 
-		this.createScorePopup(x, y, score)
+		this.createScorePopup(x, y, score);
 	}
 
 	private applyAngularVelocity(
@@ -249,16 +247,18 @@ export class Game extends Scene {
 	}
 
 	private createScorePopup(x: number, y: number, score: number): void {
-		const scoreText = this.add.text(x, y, `+${score}`, {
-			fontSize: "24px",
-			color: "#ff0000",
-		}).setOrigin(0.5);
-	
+		const scoreText = this.add
+			.text(x, y, `+${score}`, {
+				fontSize: "24px",
+				color: "#ff0000",
+			})
+			.setOrigin(0.5);
+
 		this.tweens.add({
 			targets: scoreText,
 			alpha: 0,
 			duration: 2000,
-			ease: 'Power1',
+			ease: "Power1",
 			onComplete: () => {
 				scoreText.destroy();
 			},
